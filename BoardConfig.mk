@@ -4,7 +4,7 @@ ALLOW_MISSING_DEPENDENCIES := true
 # Bootloader
 BOARD_VENDOR := samsung
 TARGET_SOC := mt6768
-TARGET_BOOTLOADER_BOARD_NAME := k68v1_64_titan
+TARGET_BOOTLOADER_BOARD_NAME := a31
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
 TARGET_USES_UEFI := true
@@ -49,7 +49,7 @@ TARGET_KERNEL_ARCH := arm64
 BOARD_BOOT_HEADER_VERSION := 2
 BOARD_BOOT_HEADER_SIZE := 1660
 BOARD_KERNEL_BASE := 0x40078000
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 androidboot.selinux=permissive
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 loop.max_part=7 androidboot.selinux=permissive
 BOARD_KERNEL_IMAGE_NAME := KernelImage
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_OFFSET := 0x00008000
@@ -65,7 +65,7 @@ BOARD_MKBOOTIMG_ARGS := \
 	--second_offset $(BOARD_KERNEL_SECOND_OFFSET) \
 	--header_version $(BOARD_BOOT_HEADER_VERSION) \
 	--pagesize $(BOARD_KERNEL_PAGESIZE) \
-	--board "SRPTA24B001" \
+	--board "SRPSL24A005" \
 	--dtb $(TARGET_PREBUILT_DTB) \
 	--dtb_offset $(BOARD_DTB_OFFSET)
 	
@@ -83,9 +83,9 @@ BOARD_RECOVERYIMAGE_PARTITION_SIZE := 33554432
 
 # Dynamic Partitions
 BOARD_SUPER_PARTITION_SIZE := 6794772480
-BOARD_SUPER_PARTITION_GROUPS := samsung_dynamic_partitions
-BOARD_SAMSUNG_DYNAMIC_PARTITIONS_SIZE := 6172049408
-BOARD_SAMSUNG_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product odm
+BOARD_SUPER_PARTITION_GROUPS := main
+BOARD_MAIN_SIZE := 6790578176
+BOARD_MAIN_PARTITION_LIST := system vendor product odm
 
 # System as root
 BOARD_ROOT_EXTRA_FOLDERS := cache carrier data_mirror efs keyrefuge linkerconfig metadata omr optics prism spu
@@ -148,4 +148,5 @@ TW_MTP_DEVICE := "Galaxy A31"
 
 # Making the recovery.img smaller
 BOARD_HAS_NO_REAL_SDCARD := true
+LZMA_RAMDISK_TARGETS := recovery
 

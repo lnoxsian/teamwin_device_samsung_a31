@@ -36,7 +36,7 @@
 /nvram			emmc		/dev/block/by-name/nvram							flags=backup=1;display="Non-volatile Ram (NVRAM)"
 /nvdata			ext4		/dev/block/by-name/nvdata							flags=backup=1;display="Non-volatile Data";subpartitionof=/nvram
 /nvcfg			ext4		/dev/block/by-name/nvcfg							flags=backup=1;display="Non-volatile Config";subpartitionof=/nvram
-/persistent		emmc		/dev/block/platform/bootdevice/by-name/persistent	flags=backup=1;display="Persistent";subpartitionof=/nvram
+/persistent		emmc		/dev/block/platform/bootdevice/by-name/frp			flags=backup=1;display="Persistent";subpartitionof=/nvram
 
 # CP Slot a.k.a baseband image
 /md1img			emmc		/dev/block/platform/bootdevice/by-name/md1img		flags=backup=1;display="Baseband"

@@ -4,11 +4,10 @@
 + TWRP Status: Mostly Stable. 
 - Releases tagged as "Pre-release" are considered experimental and may cause more unexpected stuff than the latest release, nobody is forced to support your in older releases.
 ```
-Set the ``TW_CUSTOM_THEME``flag for a custom theme.
+Set the ``TW_CUSTOM_THEME`` flag for a custom theme.
 
-Build with twrp-11 to avoid the recovery.img being bigger than the partition.
+LZMA ramdisk compression is enabled (`LZMA_RAMDISK_TARGETS := recovery`) to ensure recovery images stay within the strict 32MB physical partition limit on Android 12.
 
-Run ``chmod +x device/samsung/a31/mkbootimg`` to avoid building issues.
 ### Special thanks to:
 > [TeamWin](https://github.com/TeamWin) for the Recovery Project.
 > 
@@ -45,7 +44,7 @@ Run ``chmod +x device/samsung/a31/mkbootimg`` to avoid building issues.
 > - [x] all important partitions listed in mount/backup lists
 > - [x] backup/restore to/from external (USB-OTG) storage
 > - [x] backup/restore to/from adb (https://gerrit.omnirom.org/#/c/15943/)
-> - [ ] decrypt /data
+> - [ ] decrypt /data (Use Format Data + multidisabler; Samsung Trustonic TEE/TIMA exceeds 32MB partition limit)
 > - [x] Correct date
 >
 > **Minor checks**
