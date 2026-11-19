@@ -37,7 +37,7 @@ jobs:
         with:
           path: device_tree
 
-      - name: Free Disk Space
+      - name: Free Disk Space and Setup Swap
         run: |
           echo "==> Disk space before cleanup:"
           df -h
@@ -47,6 +47,12 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           echo "==> Disk space after cleanup:"
           df -h
+          echo "==> Creating 8GB Swap..."
+          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
 
       - name: Install Build Dependencies
         run: |
@@ -62,7 +68,7 @@ jobs:
       - name: Cache CCache
         uses: actions/cache@v4
         with:
-          path: ~/.ccache
+          path: twrp/.ccache
           key: twrp-ccache-${{ github.event.inputs.manifest_branch }}-${{ github.run_id }}
           restore-keys: |
             twrp-ccache-${{ github.event.inputs.manifest_branch }}-
@@ -146,7 +152,8 @@ jobs:
           export ALLOW_MISSING_DEPENDENCIES=true
           export USE_CCACHE=1
           export CCACHE_EXEC=/usr/bin/ccache
-          export CCACHE_DIR=~/.ccache
+          export CCACHE_DIR="$PWD/.ccache"
+          mkdir -p "$CCACHE_DIR"
           ccache -M 5G
           ccache -z
           source build/envsetup.sh
