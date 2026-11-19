@@ -160,7 +160,7 @@ jobs:
           ccache -z
           source build/envsetup.sh
           lunch twrp_a31-eng
-          mka recoveryimage -j$(nproc)
+          mka avbtool recoveryimage -j$(nproc)
           ccache -s
 
       - name: Check Output Images
