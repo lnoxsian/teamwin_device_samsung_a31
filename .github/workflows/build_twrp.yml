@@ -11,6 +11,21 @@ on:
         options:
           - 'twrp-12.1'
           - 'twrp-11'
+      kernel_image_url:
+        description: 'Custom Image.gz URL (optional - leave blank to use repo prebuilt)'
+        required: false
+        default: ''
+        type: string
+      kernel_dtb_url:
+        description: 'Custom mt6768.dtb URL (optional - leave blank to use repo prebuilt)'
+        required: false
+        default: ''
+        type: string
+      fetch_latest_kernel_ci:
+        description: 'Fetch latest slim kernel from a315g-S CI run'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -76,11 +91,51 @@ jobs:
           fi
           repo sync -c -j$(nproc) --force-sync --no-clone-bundle --no-tags
 
-      - name: Place Device Tree
+      - name: Place Device Tree and Setup Kernel
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p twrp/device/samsung/a31
           cp -r device_tree/* twrp/device/samsung/a31/
           chmod +x twrp/device/samsung/a31/mkbootimg
+
+          # 1. Download custom Image.gz from URL if provided
+          if [ -n "${{ github.event.inputs.kernel_image_url }}" ]; then
+            echo "==> Downloading custom Image.gz from URL..."
+            curl -fL "${{ github.event.inputs.kernel_image_url }}" -o twrp/device/samsung/a31/prebuilt/KernelImage
+          fi
+
+          # 2. Download custom mt6768.dtb from URL if provided
+          if [ -n "${{ github.event.inputs.kernel_dtb_url }}" ]; then
+            echo "==> Downloading custom mt6768.dtb from URL..."
+            curl -fL "${{ github.event.inputs.kernel_dtb_url }}" -o twrp/device/samsung/a31/prebuilt/KernelDTB
+          fi
+
+          # 3. Automatically fetch latest slim kernel from a315g-S CI if requested
+          if [ "${{ github.event.inputs.fetch_latest_kernel_ci }}" = "true" ]; then
+            echo "==> Fetching latest slim recovery kernel artifact from a315g-S CI..."
+            RUN_ID=$(gh run list --repo lnoxsian/a315g-S --workflow build_recovery_kernel.yml --status success --limit 1 --json databaseId -q '.[0].databaseId')
+            if [ -n "$RUN_ID" ]; then
+              echo "==> Found successful kernel run ID: $RUN_ID"
+              gh run download "$RUN_ID" --repo lnoxsian/a315g-S --name "A31-Slim-Kernel-a31_recovery_defconfig" --dir /tmp/ci_kernel
+              if [ -f /tmp/ci_kernel/Image.gz ]; then
+                cp /tmp/ci_kernel/Image.gz twrp/device/samsung/a31/prebuilt/KernelImage
+                echo "==> Successfully replaced KernelImage with CI artifact"
+              fi
+              DTB_FILE=$(find /tmp/ci_kernel -name "mt6768.dtb" | head -n 1)
+              if [ -n "$DTB_FILE" ]; then
+                cp "$DTB_FILE" twrp/device/samsung/a31/prebuilt/KernelDTB
+                echo "==> Successfully replaced KernelDTB with CI artifact"
+              fi
+            else
+              echo "==> WARNING: Could not find successful a315g-S run. Using repo prebuilt kernel."
+            fi
+          fi
+
+          # 4. Verify prebuilt kernel files
+          echo "==> Active Prebuilt Kernel for TWRP Build:"
+          ls -lh twrp/device/samsung/a31/prebuilt/KernelImage
+          ls -lh twrp/device/samsung/a31/prebuilt/KernelDTB
 
       - name: Compile TWRP Recovery
         run: |
